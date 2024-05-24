@@ -1,13 +1,18 @@
 package com.sergei.spring.security.configuration;
 
+import com.mchange.v2.c3p0.ComboPooledDataSource;
+import jakarta.activation.DataSource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -34,29 +39,37 @@ public class MySecurityConfig {
 //    }
 
 
+    @Autowired
+    ComboPooledDataSource dataSource;
+
+    // https://docs.spring.io/spring-security/reference/servlet/authentication/passwords/jdbc.html -> explanation
     @Bean
     public UserDetailsService userDetailsService() {
-        UserDetails user1 = User.withDefaultPasswordEncoder()
-                .username("sergei")
-                .password("aaa")
-                .roles("EMPLOYEE")
-                .build();
 
-        UserDetails user2 = User.withDefaultPasswordEncoder()
-                .username("zaur")
-                .password("bbb")
-                .roles("HR")
-                .build();
+        JdbcUserDetailsManager users = new JdbcUserDetailsManager(dataSource);
+        return users;
 
-        UserDetails user3 = User.withDefaultPasswordEncoder()
-                .username("elena")
-                .password("ccc")
-                .roles("MANAGER", "HR")
-                .build();
-
-        UserDetails[] users = {user1, user2, user3};
-
-        return new InMemoryUserDetailsManager(users);
+//        UserDetails user1 = User.withDefaultPasswordEncoder()
+//                .username("sergei")
+//                .password("aaa")
+//                .roles("EMPLOYEE")
+//                .build();
+//
+//        UserDetails user2 = User.withDefaultPasswordEncoder()
+//                .username("zaur")
+//                .password("bbb")
+//                .roles("HR")
+//                .build();
+//
+//        UserDetails user3 = User.withDefaultPasswordEncoder()
+//                .username("elena")
+//                .password("ccc")
+//                .roles("MANAGER", "HR")
+//                .build();
+//
+//        UserDetails[] users = {user1, user2, user3};
+//
+//        return new InMemoryUserDetailsManager(users);
     }
 
     @Bean
