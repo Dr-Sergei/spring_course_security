@@ -31,7 +31,7 @@ public class MyConfig {
         ComboPooledDataSource dataSource = new ComboPooledDataSource();
         try{
             dataSource.setDriverClass("com.mysql.cj.jdbc.Driver");
-            dataSource.setJdbcUrl("jdbc:mysql://172.17.0.3:3306/my_db");
+            dataSource.setJdbcUrl("jdbc:mysql://172.17.0.2:3306/my_db");
             dataSource.setUser("root");
             dataSource.setPassword("admin");
         }catch (PropertyVetoException e) {
