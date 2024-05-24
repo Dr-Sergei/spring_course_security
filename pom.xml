@@ -1,21 +1,163 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
   <groupId>com.sergei.spring.security</groupId>
   <artifactId>spring_course_security</artifactId>
   <packaging>war</packaging>
   <version>1.0-SNAPSHOT</version>
+
   <name>spring_course_security Maven Webapp</name>
   <url>http://maven.apache.org</url>
+
+  <properties>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>3.8.1</version>
+      <version>4.11</version>
       <scope>test</scope>
     </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.springframework/spring-webmvc -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+      <version>6.1.6</version>
+    </dependency>
+
+    <!-- jakarta API for Servlets and more -->
+    <dependency>
+      <groupId>jakarta.platform</groupId>
+      <artifactId>jakarta.jakartaee-api</artifactId>
+      <version>9.0.0</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- Security web ONE SHOULD CONSIDER THE VERSIONS COMPATIBILITY BETWEEN SPRING MVC AND SECURITY-->
+    <!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-web -->
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-web</artifactId>
+      <version>6.2.4</version>
+    </dependency>
+
+    <!-- Security Config -->
+    <!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-config -->
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-config</artifactId>
+      <version>6.2.4</version>
+    </dependency>
+
   </dependencies>
+
   <build>
-    <finalName>spring_course_security</finalName>
+    <finalName>spring</finalName>
+    <plugins>
+
+      <!-- war plugin-->
+      <!-- needed for routing instead web.xml -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>3.3.2</version>
+        <configuration>
+          <warSourceDirectory>src/main/webapp</warSourceDirectory>
+          <failOnMissingWebXml>true</failOnMissingWebXml>
+          <warName>spring</warName>
+          <archive>
+            <manifest>
+              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+            </manifest>
+            <manifestEntries>
+              <Implementation-Build>1</Implementation-Build>
+            </manifestEntries>
+          </archive>
+        </configuration>
+      </plugin>
+
+      <!-- compiler plugin-->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.11.0</version>
+        <configuration>
+          <source>17</source>
+          <target>17</target>
+          <compilerArgs>
+            <arg>-Xlint:all</arg>
+            <arg>-proc:none</arg>
+            <arg>-parameters</arg>
+          </compilerArgs>
+          <encoding>UTF-8</encoding>
+        </configuration>
+      </plugin>
+
+      <!-- surfire plugin -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.0.0-M9</version>
+        <configuration>
+          <runOrder>random</runOrder>
+          <forkedProcessExitTimeoutInSeconds>240</forkedProcessExitTimeoutInSeconds>
+        </configuration>
+      </plugin>
+
+      <!-- container build -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>container building</id>
+            <phase>package</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>docker</executable>
+              <commandlineArgs>run -tdi -p 8001:8080 --name xxx1 tomee:9-jre17-plume</commandlineArgs>
+              <successCodes>
+                <successCode>0</successCode>
+                <successCode>125</successCode>
+              </successCodes>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>container starting</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>docker</executable>
+              <commandlineArgs>start xxx</commandlineArgs>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>war deploying</id>
+            <phase>package</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>docker</executable>
+              <commandlineArgs>cp ${project.basedir}/target/spring.war xxx:/usr/local/tomee/webapps
+              </commandlineArgs>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
   </build>
 </project>
